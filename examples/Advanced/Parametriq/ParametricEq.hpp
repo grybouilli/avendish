@@ -5,7 +5,7 @@
 
 #include <DspFilters/Butterworth.h>
 #include <DspFilters/ChebyshevI.h>
-#include <DspFilters/Filter.h>
+#include <DspFilters/SmoothedFilter.h>
 #include <halp/custom_widgets.hpp>
 #include <halp/layout.hpp>
 
@@ -67,16 +67,14 @@ struct ParametricEq
 
   //                                      Available filters
   static constexpr auto chans = 2;
-  Dsp::FilterDesign<Dsp::Butterworth::Design::LowPass<maxOrder>, chans>
-      lowpassFilter; // crashes when cutoffFreq = 0 (should never happen)
-  Dsp::FilterDesign<Dsp::Butterworth::Design::HighPass<maxOrder>, chans> highpassFilter;
-  Dsp::FilterDesign<Dsp::Butterworth::Design::BandPass<maxOrder>, chans> bandpassFilter;
-  Dsp::FilterDesign<Dsp::Butterworth::Design::BandStop<maxOrder>, chans> bandstopFilter;
-  Dsp::FilterDesign<Dsp::Butterworth::Design::LowShelf<maxOrder>, chans> lowshelfFilter;
-  Dsp::FilterDesign<Dsp::Butterworth::Design::HighShelf<maxOrder>, chans>
-      highshelfFilter;
-  Dsp::FilterDesign<Dsp::ChebyshevI::Design::BandShelf<maxOrder>, chans>
-      bandshelfFilter; // crashes when gain = 0;
+  static constexpr int transitionSample = 1024;
+  Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::LowPass<maxOrder>, chans>   lowpassFilter   { transitionSample }; // crashes when cutoffFreq = 0 (should never happen)
+  Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::HighPass<maxOrder>, chans>  highpassFilter  { transitionSample };
+  Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::BandPass<maxOrder>, chans>  bandpassFilter  { transitionSample };
+  Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::BandStop<maxOrder>, chans>  bandstopFilter  { transitionSample };
+  Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::LowShelf<maxOrder>, chans>  lowshelfFilter  { transitionSample };
+  Dsp::SmoothedFilterDesign<Dsp::Butterworth::Design::HighShelf<maxOrder>, chans> highshelfFilter { transitionSample };
+  Dsp::SmoothedFilterDesign<Dsp::ChebyshevI::Design::BandShelf<maxOrder>, chans>  bandshelfFilter { transitionSample }; // crashes when gain = 0;
   //Dsp::Filter * lowpassFilter, * highpassFilter, * bandpassFilter, * bandstopFilter, * lowshelfFilter, * highshelfFilter, * bandshelfFilter;
 
   // EQ Bode diagram calculator
