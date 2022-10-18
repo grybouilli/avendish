@@ -482,4 +482,5 @@ Further work:
  - allow an arbitrary number of channels for audio input
  - port ALL filters from DSP
     -> could be done by using pointers instead of direct objects?
+ - allow adding points to plot by clicking on the diagram (check 2D automation implementation)
 */
