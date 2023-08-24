@@ -53,7 +53,7 @@ std::function<void(MyObject&)> MyObject::worker::work(int x, std::string foo)
 
   // Repeat the string x times:
   std::string orig = foo;
-  while(x > 0) {
+  while(--x > 0) {
     foo += orig;
   }
 
