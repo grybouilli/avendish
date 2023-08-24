@@ -24,7 +24,8 @@ enum class layouts
   spacing,
   control,
   widget,
-  custom
+  custom,
+  custom_control
 };
 enum class colors
 {
@@ -55,10 +56,20 @@ struct item_base
 };
 
 // When clang supports P2082R1, we could just use a deduction guide instead...
+
 template <auto F>
 struct item : item_base
 {
-  decltype(F) control = F;
+  decltype(F) model = F;
+};
+
+template <auto F>
+struct control : item_base
+{
+  decltype(F) model = F;
+  using control_member_type = halp::member_type_t<decltype(F)>;
+  using control_value_type = decltype(control_member_type::value);
+  control_value_type value;
 };
 
 struct image_item_base
@@ -73,7 +84,7 @@ struct image_item_base
 template <auto F>
 struct image_item : image_item_base
 {
-  decltype(F) control = F;
+  decltype(F) model = F;
 };
 
 template <typename T>
@@ -88,9 +99,16 @@ struct custom_item_base
 };
 
 template <typename T, auto F>
-struct custom_item : custom_item_base<T>
+struct custom_item : T
 {
-  decltype(F) control = F;
+  halp_meta(layout, layouts::custom)
+  using item_type = T;
+
+  double x = 0.0;
+  double y = 0.0;
+  double scale = 1.0;
+
+  decltype(F) model = F;
 };
 
 template <typename T>
@@ -101,6 +119,18 @@ struct custom_actions_item : T
   double x = 0.0;
   double y = 0.0;
   double scale = 1.0;
+};
+
+template <typename T, auto F>
+struct custom_control : T
+{
+  halp_meta(layout, halp::layouts::custom_control)
+
+  double x = 0.0;
+  double y = 0.0;
+  double scale = 1.0;
+
+  decltype(F) model = F;
 };
 
 template <typename M, typename L, typename T>

@@ -5,27 +5,26 @@
 #include <cmath>
 #include <halp/audio.hpp>
 #include <halp/controls.hpp>
-#include <halp/soundfile_port.hpp>
 #include <halp/meta.hpp>
+#include <halp/soundfile_port.hpp>
 
 #include <vector>
 
-namespace oscr
+namespace ao
 {
-class Granolette
+class Soundfile
 {
 public:
-  halp_meta(name, "Granolette")
-  halp_meta(c_name, "granolette")
-  halp_meta(uuid, "a8ffe1d1-152d-4bfc-9209-93cf8c0453ca")
-
-  using setup = halp::setup;
-  using tick = halp::tick;
+  halp_meta(name, "Soundfile")
+  halp_meta(c_name, "soundfile")
+  halp_meta(category, "Audio")
+  halp_meta(author, "Jean-Michaël Celerier")
+  halp_meta(description, "Basic soundfile player")
+  halp_meta(uuid, "5c12a267-63a3-4dde-99e5-264b4ca4243b")
 
   struct
   {
     halp::soundfile_port<"Sound"> sound;
-    halp::hslider_f32<"Position", halp::range{0., 1., 0.}> pos;
   } inputs;
 
   struct
@@ -33,29 +32,37 @@ public:
     halp::variable_audio_bus<"Output", double> audio;
   } outputs;
 
-  void prepare(halp::setup s) {
+  using setup = halp::setup;
+  void prepare(halp::setup s)
+  {
     if(inputs.sound)
       outputs.audio.request_channels(inputs.sound.channels());
   }
 
-  void operator()(halp::tick t)
+  using tick = halp::tick_musical;
+  void operator()(halp::tick_musical t)
   {
     if(!inputs.sound)
+    {
       return;
+    }
 
     if(outputs.audio.channels != inputs.sound.channels())
+    {
       outputs.audio.request_channels(inputs.sound.channels());
+      return;
+    }
 
     // Just take the first channel of the soundfile.
     // in is a std::span
-    const auto in = inputs.sound.channel(0);
 
     // We'll read at this position
-    const int64_t start = std::floor(inputs.pos * inputs.sound.frames());
+    const int64_t start = t.position_in_frames;
 
     // Copy it at the given position for each output
     for(int i = 0; i < outputs.audio.channels; i++)
     {
+      const auto in = inputs.sound.channel(i);
       // Output buffer for channel i, also a std::span.
       auto out = outputs.audio.channel(i, t.frames);
 
